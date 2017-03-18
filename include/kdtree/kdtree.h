@@ -11,13 +11,14 @@
 #include <algorithm>
 #include <tuple>
 #include <memory>
+#include <limits>
 
 
 namespace kd_tree
 {
 
-typedef std::vector<std::vector<double>> KdPointList;
 typedef std::vector<double> KdPoint;
+typedef std::vector<KdPoint> KdPointList;
 
 /**
  * @brief Structure of one Node in the k-d tree
@@ -75,12 +76,36 @@ public:
   KdTree(KdPointList point_list)
   {
     head_ptr = buildKdTree(point_list);
+    k = point_list[0].size();
+    for (size_t i = 0; i < k; i++)
+    {
+      kd_max_point.push_back(std::numeric_limits<double>::max());
+      kd_min_point.push_back(std::numeric_limits<double>::min());
+    }
   }
 
   /**
    * @brief Preorder traversal and print out of the tree elements (root,left,right)
    */
   void traverseTree();
+
+  /**
+   * @brief Finds the point in the k-d tree with the minimum value in the specified dimension
+   * @param dim The dimension in which to search for and find the point with the minimum value
+   * @return The k-d point with the minimum value in the specified dimension, dim
+   */
+  KdPoint findMin(size_t dim);
+
+  /**
+   * @brief Prints the k-d point in a pretty format
+   * @param kd_point The point to be printed out
+   */
+  void printKdPoint(KdPoint kd_point);
+
+  /**
+   * @brief Finds and prints the k-d point in the tree with the minimum in each dimension
+   */
+  void printMinInAllDims();
   
 private:
   /**
@@ -103,8 +128,29 @@ private:
    */
   void printNode(NodePtr node_ptr);
 
+  /**
+   * @brief Finds the point in the k-d tree with the minimum value in the specified dimension
+   * @param dim The dimension in which to search for and find the point with the minimum value
+   * @param node_ptr The node to be searched
+   * @param current_dim The current split dimension
+   * @return The k-d point with the minimum value in the specified dimension, dim
+   */
+  KdPoint findMin(size_t dim, NodePtr node_ptr, size_t current_dim);
+
+  /**
+   * @brief Finds the minimum of the three given KdPoint objects in the specified dim dimension
+   * @param a KdPoint 1
+   * @param b KdPoint 2
+   * @param c KdPoint 3
+   * @return The point with the minimum in the dim dimension of the three given KdPoint objects
+   */
+  KdPoint minKdPoint(KdPoint a, KdPoint b, KdPoint c, size_t dim);
+
   // MEMBERS
   NodePtr head_ptr;
+  size_t k;
+  KdPoint kd_max_point;
+  KdPoint kd_min_point;
 };
 }
 #endif  // KDTREE_KDTREE_H
